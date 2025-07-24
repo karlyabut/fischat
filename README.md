@@ -32,8 +32,8 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/fischat.io.git
-cd fischat.io
+git clone https://github.com/yourusername/fischat.git
+cd fischat
 ```
 
 ### 2. Install Dependencies
@@ -112,7 +112,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to see the a
 ## 📁 Project Structure
 
 ```
-fischat.io/
+fischat/
 ├── src/
 │   ├── app/
 │   │   ├── api/                    # API routes
