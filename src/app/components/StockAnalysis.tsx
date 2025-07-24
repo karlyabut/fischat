@@ -152,13 +152,13 @@ export default function StockAnalysis() {
     <div className="space-y-6 p-6 border border-gray-800 rounded-lg bg-gray-900">
       <h2 className="text-xl font-bold text-center text-white">FisChat</h2>
       <p className="text-gray-300">
-        Ask questions about any company and get AI-powered analysis using real financial data. Just mention the company name in your question!
+        Ask questions about any company and get AI-powered analysis using real financial data.
       </p>
 
       {/* Input Section */}
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium mb-2 text-gray-200">Your Question</label>
+          <label className="block text-sm font-medium mb-2 text-gray-200">Ask away!</label>
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
