@@ -1,7 +1,13 @@
+interface OpenAIUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
 export interface OpenAIResponse {
   response: string;
   model: string;
-  usage: any;
+  usage: OpenAIUsage;
 }
 
 export async function sendMessage(message: string, model: string = "gpt-4o"): Promise<OpenAIResponse> {

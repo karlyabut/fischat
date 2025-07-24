@@ -19,7 +19,7 @@ const handler = NextAuth({
     signIn: '/auth/signin',
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       try {
         // Store user data in Firebase
         const userRef = doc(db, "users", user.email!);
@@ -53,7 +53,7 @@ const handler = NextAuth({
         return true; // Still allow sign in even if Firebase fails
       }
     },
-    async session({ session, token }) {
+    async session({ session }) {
       try {
         // Add Firebase user data to session
         if (session.user?.email) {
@@ -77,7 +77,7 @@ const handler = NextAuth({
       
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token }) {
       return token;
     },
   },

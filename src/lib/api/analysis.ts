@@ -1,40 +1,72 @@
+interface StockQuote {
+  price: number;
+  marketCap: number;
+  change: number;
+  volume: number;
+  [key: string]: unknown;
+}
+
+interface CompanyProfile {
+  [key: string]: unknown;
+}
+
+interface FinancialStatement {
+  date: string;
+  operatingExpenses?: number;
+  costAndExpenses?: number;
+  interestIncome?: number;
+  interestExpense?: number;
+  netIncome?: number;
+  [key: string]: unknown;
+}
+
+interface EarningsCall {
+  [key: string]: unknown;
+}
+
+interface DataPoint {
+  label: string;
+  value: number;
+  unit: string;
+  type: 'revenue' | 'growth' | 'percentage' | 'ratio' | 'metric' | 'other';
+  year?: number;
+  period?: string;
+}
+
+interface VisualizationData {
+  operatingExpenses?: Array<{label: string; value: number}>;
+  costAndExpenses?: Array<{label: string; value: number}>;
+  interestIncome?: Array<{label: string; value: number}>;
+  interestExpense?: Array<{label: string; value: number}>;
+  netIncome?: Array<{label: string; value: number}>;
+}
+
+interface DataTypes {
+  hasEarningsCalls: boolean;
+  hasFinancialData: boolean;
+  hasCompanyInfo: boolean;
+  hasBasicData: boolean;
+}
+
 export interface StockAnalysisResponse {
   analysis?: string;
   stockData?: {
-    quote: any;
-    profile: any;
+    quote: StockQuote;
+    profile: CompanyProfile;
     symbol: string;
-    earningsCalls?: any[];
-    incomeStatements?: any[];
-    balanceSheets?: any[];
-    cashFlowStatements?: any[];
+    earningsCalls?: EarningsCall[];
+    incomeStatements?: FinancialStatement[];
+    balanceSheets?: unknown[];
+    cashFlowStatements?: unknown[];
   };
   question?: string;
   symbol?: string;
   model?: string;
-  usage?: any;
-  dataTypes?: {
-    hasEarningsCalls: boolean;
-    hasFinancialData: boolean;
-    hasCompanyInfo: boolean;
-    hasBasicData: boolean;
-  };
+  usage?: unknown;
+  dataTypes?: DataTypes;
   error?: string;
-  dataPoints?: Array<{
-    label: string;
-    value: number;
-    unit: string;
-    type: 'revenue' | 'growth' | 'percentage' | 'ratio' | 'metric' | 'other';
-    year?: number;
-    period?: string;
-  }>;
-  visualizationData?: {
-    operatingExpenses?: Array<{label: string; value: number}>;
-    costAndExpenses?: Array<{label: string; value: number}>;
-    interestIncome?: Array<{label: string; value: number}>;
-    interestExpense?: Array<{label: string; value: number}>;
-    netIncome?: Array<{label: string; value: number}>;
-  };
+  dataPoints?: DataPoint[];
+  visualizationData?: VisualizationData;
 }
 
 export async function analyzeStock(

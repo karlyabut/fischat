@@ -20,7 +20,7 @@ export default function EmbeddedChart({ visualizationData }: EmbeddedChartProps)
 
   const availableMetrics = Object.keys(visualizationData).filter(key =>
     visualizationData[key as keyof VisualizationData] &&
-    (visualizationData[key as keyof VisualizationData] as any[]).length > 0
+    (visualizationData[key as keyof VisualizationData] as Array<{ label: string; value: number }>).length > 0
   );
 
   const chartData = [...(visualizationData[selectedMetric as keyof VisualizationData] || [])]
@@ -97,7 +97,7 @@ export default function EmbeddedChart({ visualizationData }: EmbeddedChartProps)
                   borderRadius: '8px',
                   color: '#F9FAFB'
                 }}
-                formatter={(value: any) => [formatValue(value), metricLabels[selectedMetric as keyof typeof metricLabels]]}
+                formatter={(value: number) => [formatValue(value), metricLabels[selectedMetric as keyof typeof metricLabels]]}
                 labelFormatter={formatLabel}
               />
               <Legend />

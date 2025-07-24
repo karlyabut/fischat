@@ -1,7 +1,43 @@
+interface StockQuote {
+  price: number;
+  marketCap: number;
+  change: number;
+  volume: number;
+  [key: string]: unknown;
+}
+
+interface CompanyProfile {
+  [key: string]: unknown;
+}
+
+interface FinancialStatement {
+  date: string;
+  operatingExpenses?: number;
+  costAndExpenses?: number;
+  interestIncome?: number;
+  interestExpense?: number;
+  netIncome?: number;
+  [key: string]: unknown;
+}
+
+interface EarningsCall {
+  [key: string]: unknown;
+}
+
+interface StockData {
+  quote: StockQuote;
+  profile: CompanyProfile;
+  symbol: string;
+  earningsCalls?: EarningsCall[];
+  incomeStatements?: FinancialStatement[];
+  balanceSheets?: unknown[];
+  cashFlowStatements?: unknown[];
+}
+
 export interface PromptParams {
   question: string;
   symbol?: string;
-  stockData?: any;
+  stockData?: StockData;
   isEarningsCall?: boolean;
   isFinancialData?: boolean;
   isCompanyInfo?: boolean;

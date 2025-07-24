@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { analyzeStock } from "@/lib/api/analysis";
+import { analyzeStock, StockAnalysisResponse } from "@/lib/api/analysis";
 import { saveChatMessage } from "@/lib/chat-history";
 import EmbeddedChart from "./EmbeddedChart";
+
+// Import the type for usage data
+type OpenAIUsage = {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+};
 
 export default function StockAnalysis() {
   const { data: session } = useSession();
   const [question, setQuestion] = useState("");
-  const [analysis, setAnalysis] = useState<any>(null);
+  const [analysis, setAnalysis] = useState<StockAnalysisResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
   const [showFullAnalysis, setShowFullAnalysis] = useState(false);
@@ -81,11 +88,11 @@ export default function StockAnalysis() {
             userEmail: session.user.email,
             question: question,
             answer: result.analysis,
-            symbol: result.symbol,
+            symbol: result.symbol || 'Unknown',
             stockData: result.stockData,
             dataTypes: result.dataTypes,
             model: result.model,
-            usage: result.usage,
+            usage: result.usage as OpenAIUsage | undefined,
             dataPoints: result.dataPoints,
             visualizationData: result.visualizationData,
           });
@@ -96,7 +103,7 @@ export default function StockAnalysis() {
       }
     } catch (error) {
       console.error("Analysis Error:", error);
-      setAnalysis({ error: (error as Error).message });
+      setAnalysis({ error: (error as Error).message } as StockAnalysisResponse);
     } finally {
       setLoading(false);
     }
@@ -217,7 +224,7 @@ export default function StockAnalysis() {
                   {showFullAnalysis ? (
                     <div>
                       <div className="whitespace-pre-wrap text-gray-200 mb-3">
-                        {analysis.analysis}
+                        {analysis.analysis || ''}
                       </div>
                       <button
                         onClick={() => setShowFullAnalysis(false)}
@@ -229,7 +236,7 @@ export default function StockAnalysis() {
                   ) : (
                     <div>
                       <div className="text-gray-200 mb-3 leading-relaxed">
-                        {getSummary(analysis.analysis)}
+                        {getSummary(analysis.analysis || '')}
                       </div>
                       <button
                         onClick={() => setShowFullAnalysis(true)}
@@ -243,7 +250,7 @@ export default function StockAnalysis() {
               </div>
 
               {/* Financial Data Visualization */}
-              {analysis.dataTypes.hasFinancialData && analysis.visualizationData && (
+              {analysis.dataTypes?.hasFinancialData && analysis.visualizationData && (
                 <EmbeddedChart visualizationData={analysis.visualizationData} />
               )}
 
@@ -252,16 +259,16 @@ export default function StockAnalysis() {
                 <h4 className="font-semibold mb-2 text-white">Stock Data Summary</h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div className="text-gray-200">
-                    <strong className="text-white">Price:</strong> ${analysis.stockData.quote.price}
+                    <strong className="text-white">Price:</strong> ${analysis.stockData?.quote?.price?.toFixed(2) || 'N/A'}
                   </div>
                   <div className="text-gray-200">
-                    <strong className="text-white">Change:</strong> {analysis.stockData.quote.change}%
+                    <strong className="text-white">Change:</strong> {analysis.stockData?.quote?.change?.toFixed(2) || 'N/A'}%
                   </div>
                   <div className="text-gray-200">
-                    <strong className="text-white">Market Cap:</strong> ${(analysis.stockData.quote.marketCap / 1e9).toFixed(2)}B
+                    <strong className="text-white">Market Cap:</strong> ${analysis.stockData?.quote?.marketCap ? (analysis.stockData.quote.marketCap / 1e9).toFixed(2) + 'B' : 'N/A'}
                   </div>
                   <div className="text-gray-200">
-                    <strong className="text-white">Volume:</strong> {(analysis.stockData.quote.volume / 1e6).toFixed(2)}M
+                    <strong className="text-white">Volume:</strong> {analysis.stockData?.quote?.volume ? (analysis.stockData.quote.volume / 1e6).toFixed(2) + 'M' : 'N/A'}
                   </div>
                 </div>
               </div>
@@ -270,16 +277,16 @@ export default function StockAnalysis() {
               <div className="p-4 border border-gray-700 rounded bg-gray-800">
                 <h4 className="font-semibold mb-2 text-white">Data Sources Used</h4>
                 <div className="flex flex-wrap gap-2">
-                  {analysis.dataTypes.hasBasicData && (
+                  {analysis.dataTypes?.hasBasicData && (
                     <span className="px-2 py-1 border border-blue-600 text-blue-300 text-xs rounded bg-blue-900">Stock Quote & Profile</span>
                   )}
-                  {analysis.dataTypes.hasEarningsCalls && (
+                  {analysis.dataTypes?.hasEarningsCalls && (
                     <span className="px-2 py-1 border border-green-600 text-green-300 text-xs rounded bg-green-900">Earnings Calls</span>
                   )}
-                  {analysis.dataTypes.hasFinancialData && (
+                  {analysis.dataTypes?.hasFinancialData && (
                     <span className="px-2 py-1 border border-purple-600 text-purple-300 text-xs rounded bg-purple-900">Financial Statements</span>
                   )}
-                  {analysis.dataTypes.hasCompanyInfo && (
+                  {analysis.dataTypes?.hasCompanyInfo && (
                     <span className="px-2 py-1 border border-orange-600 text-orange-300 text-xs rounded bg-orange-900">Company Information</span>
                   )}
                 </div>

@@ -4,6 +4,15 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { getUserChatHistory, deleteChatMessage, ChatMessage } from "@/lib/chat-history";
 import DataVisualizationModal from "./DataVisualizationModal";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+
+interface VisualizationData {
+  operatingExpenses?: Array<{ label: string; value: number }>;
+  costAndExpenses?: Array<{ label: string; value: number }>;
+  interestIncome?: Array<{ label: string; value: number }>;
+  interestExpense?: Array<{ label: string; value: number }>;
+  netIncome?: Array<{ label: string; value: number }>;
+}
 
 export default function ChatHistory() {
   const { data: session } = useSession();
@@ -11,8 +20,10 @@ export default function ChatHistory() {
   const [loading, setLoading] = useState(true);
   const [expandedMessage, setExpandedMessage] = useState<string | null>(null);
   const [visualizationOpen, setVisualizationOpen] = useState(false);
-  const [selectedVisualizationData, setSelectedVisualizationData] = useState<any>(null);
+  const [selectedVisualizationData, setSelectedVisualizationData] = useState<VisualizationData | null>(null);
   const [selectedQuestion, setSelectedQuestion] = useState<string>("");
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<{ id: string; question: string } | null>(null);
 
   useEffect(() => {
     if (session?.user?.email) {
@@ -34,10 +45,17 @@ export default function ChatHistory() {
     }
   };
 
-  const handleDeleteMessage = async (messageId: string) => {
+  const handleDeleteClick = (messageId: string, question: string) => {
+    setMessageToDelete({ id: messageId, question });
+    setDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!messageToDelete) return;
+
     try {
-      await deleteChatMessage(messageId);
-      setChatHistory(prev => prev.filter(msg => msg.id !== messageId));
+      await deleteChatMessage(messageToDelete.id);
+      setChatHistory(prev => prev.filter(msg => msg.id !== messageToDelete.id));
     } catch (error) {
       console.error("Error deleting message:", error);
     }
@@ -58,7 +76,15 @@ export default function ChatHistory() {
   if (loading) {
     return (
       <div className="p-4 border border-gray-700 rounded-lg bg-gray-900">
-        <h3 className="text-lg font-semibold mb-4 text-white">Chat History</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Chat History</h3>
+          <button
+            onClick={loadChatHistory}
+            className="text-sm text-blue-400 hover:text-blue-300"
+          >
+            Refresh
+          </button>
+        </div>
         <div className="text-gray-400">Loading...</div>
       </div>
     );
@@ -67,7 +93,15 @@ export default function ChatHistory() {
   if (chatHistory.length === 0) {
     return (
       <div className="p-4 border border-gray-700 rounded-lg bg-gray-900">
-        <h3 className="text-lg font-semibold mb-4 text-white">Chat History</h3>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold text-white">Chat History</h3>
+          <button
+            onClick={loadChatHistory}
+            className="text-sm text-blue-400 hover:text-blue-300"
+          >
+            Refresh
+          </button>
+        </div>
         <div className="text-gray-400">No chat history yet. Ask your first question!</div>
       </div>
     );
@@ -104,7 +138,7 @@ export default function ChatHistory() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleDeleteMessage(message.id!)}
+                  onClick={() => handleDeleteClick(message.id!, message.question)}
                   className="text-xs text-red-400 hover:text-red-300 ml-2"
                 >
                   Delete
@@ -181,6 +215,13 @@ export default function ChatHistory() {
         onClose={() => setVisualizationOpen(false)}
         visualizationData={selectedVisualizationData || {}}
         question={selectedQuestion}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        question={messageToDelete?.question || ""}
       />
     </>
   );

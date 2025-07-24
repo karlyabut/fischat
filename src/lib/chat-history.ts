@@ -1,5 +1,71 @@
-import { doc, setDoc, getDoc, collection, query, where, orderBy, getDocs, addDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, where, orderBy, getDocs, addDoc, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { db } from "./firebase";
+
+interface StockQuote {
+  price: number;
+  marketCap: number;
+  change: number;
+  volume: number;
+  [key: string]: unknown;
+}
+
+interface CompanyProfile {
+  [key: string]: unknown;
+}
+
+interface FinancialStatement {
+  date: string;
+  operatingExpenses?: number;
+  costAndExpenses?: number;
+  interestIncome?: number;
+  interestExpense?: number;
+  netIncome?: number;
+  [key: string]: unknown;
+}
+
+interface EarningsCall {
+  [key: string]: unknown;
+}
+
+interface StockData {
+  quote: StockQuote;
+  profile: CompanyProfile;
+  symbol: string;
+  earningsCalls?: EarningsCall[];
+  incomeStatements?: FinancialStatement[];
+  balanceSheets?: unknown[];
+  cashFlowStatements?: unknown[];
+}
+
+interface OpenAIUsage {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+}
+
+interface DataPoint {
+  label: string;
+  value: number;
+  unit: string;
+  type: 'revenue' | 'growth' | 'percentage' | 'ratio' | 'metric' | 'other';
+  year?: number;
+  period?: string;
+}
+
+interface VisualizationData {
+  operatingExpenses?: Array<{label: string; value: number}>;
+  costAndExpenses?: Array<{label: string; value: number}>;
+  interestIncome?: Array<{label: string; value: number}>;
+  interestExpense?: Array<{label: string; value: number}>;
+  netIncome?: Array<{label: string; value: number}>;
+}
+
+interface DataTypes {
+  hasEarningsCalls: boolean;
+  hasFinancialData: boolean;
+  hasCompanyInfo: boolean;
+  hasBasicData: boolean;
+}
 
 export interface ChatMessage {
   id?: string;
@@ -8,32 +74,14 @@ export interface ChatMessage {
   question: string;
   answer: string;
   symbol?: string;
-  stockData?: any;
-  dataTypes?: {
-    hasEarningsCalls: boolean;
-    hasFinancialData: boolean;
-    hasCompanyInfo: boolean;
-    hasBasicData: boolean;
-  };
+  stockData?: StockData;
+  dataTypes?: DataTypes;
   model?: string;
-  usage?: any;
+  usage?: OpenAIUsage;
   createdAt: Date;
-  timestamp?: any;
-  dataPoints?: Array<{
-    label: string;
-    value: number;
-    unit: string;
-    type: 'revenue' | 'growth' | 'percentage' | 'ratio' | 'metric' | 'other';
-    year?: number;
-    period?: string;
-  }>;
-  visualizationData?: {
-    operatingExpenses?: Array<{label: string; value: number}>;
-    costAndExpenses?: Array<{label: string; value: number}>;
-    interestIncome?: Array<{label: string; value: number}>;
-    interestExpense?: Array<{label: string; value: number}>;
-    netIncome?: Array<{label: string; value: number}>;
-  };
+  timestamp?: unknown;
+  dataPoints?: DataPoint[];
+  visualizationData?: VisualizationData;
 }
 
 export interface ChatSession {
